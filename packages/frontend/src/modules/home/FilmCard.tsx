@@ -1,3 +1,5 @@
+import React, { useCallback, useState } from 'react';
+
 type Film = {
   id?: string;
   title?: string;
@@ -8,36 +10,64 @@ type Film = {
   release_date?: string;
   rt_score?: string | number;
 };
-export default function FilmCard({ film }: { film: Film }) {
+
+export default function FilmCard({
+  film,
+  selected = false,
+  onSelect,
+}: {
+  film: Film;
+  selected?: boolean;
+  onSelect?: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  const handleToggle = useCallback(() => {
+    if (onSelect) onSelect();
+  }, [onSelect]);
+
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleToggle();
+      }
+    },
+    [handleToggle],
+  );
+
   return (
     <div
       style={{
         background: '#ffffff',
         borderRadius: 16,
         padding: 0,
-        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.12)',
-        border: '1px solid rgba(0, 0, 0, 0.06)',
+        boxShadow:
+          hovered || selected
+            ? '0 20px 40px rgba(15,23,42,0.14)'
+            : '0 10px 30px rgba(15, 23, 42, 0.12)',
+        border: selected
+          ? '3px solid rgba(99,102,241,0.85)'
+          : '1px solid rgba(0, 0, 0, 0.06)',
         display: 'flex',
         flexDirection: 'column',
         gap: 12,
         width: 300,
         overflow: 'hidden',
-        transition: 'transform 180ms ease, box-shadow 180ms ease',
+        transition:
+          'transform 180ms ease, box-shadow 180ms ease, border 160ms ease',
         cursor: 'pointer',
+        transform: hovered || selected ? 'translateY(-6px)' : 'translateY(0)',
+        position: 'relative',
       }}
-      role="article"
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected}
       aria-label={film?.title ?? 'Film card'}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform =
-          'translateY(-6px)';
-        (e.currentTarget as HTMLDivElement).style.boxShadow =
-          '0 20px 40px rgba(15,23,42,0.14)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-        (e.currentTarget as HTMLDivElement).style.boxShadow =
-          '0 10px 30px rgba(15,23,42,0.12)';
-      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={handleToggle}
+      onKeyDown={onKeyDown}
     >
       {/* Film Image */}
       <div style={{ position: 'relative', width: '100%' }}>
@@ -100,6 +130,73 @@ export default function FilmCard({ film }: { film: Film }) {
           <span style={{ fontWeight: 800, color: '#059669' }}>
             {film?.rt_score ?? '-'}
           </span>
+        </div>
+      </div>
+
+      {/* Hover / Selected Info Overlay */}
+      <div
+        data-testid="filmcard-overlay"
+        aria-hidden={!hovered && !selected}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          transition: 'opacity 160ms ease, transform 200ms ease',
+          opacity: hovered || selected ? 1 : 0,
+          pointerEvents: hovered || selected ? 'auto' : 'none',
+          transform: hovered || selected ? 'translateY(0)' : 'translateY(6px)',
+          background:
+            'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.96) 60%)',
+        }}
+      >
+        <div
+          style={{
+            padding: 16,
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            borderBottomLeftRadius: 16,
+            borderBottomRightRadius: 16,
+            background: 'rgba(255,255,255,0.98)',
+            boxShadow: '0 -6px 18px rgba(15,23,42,0.04)',
+            minHeight: 120,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+            {film?.title}
+          </div>
+          <div
+            style={{
+              fontSize: 13,
+              color: '#475569',
+              marginBottom: 8,
+              maxHeight: 64,
+              overflow: 'hidden',
+            }}
+          >
+            {film?.description}
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div style={{ color: '#94a3b8', fontSize: 12 }}>
+              Runtime:{' '}
+              <span style={{ color: '#0f172a', fontWeight: 700 }}>
+                {film?.running_time ?? '-'} min
+              </span>
+            </div>
+            <div style={{ color: '#059669', fontWeight: 800, fontSize: 18 }}>
+              {film?.rt_score ?? '-'}
+            </div>
+          </div>
         </div>
       </div>
 

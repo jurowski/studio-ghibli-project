@@ -1,11 +1,13 @@
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { useQuery } from '@apollo/client';
+import { useState } from 'react';
 import FilmCard from './FilmCard';
 import bg from '~/assets/background.png';
 import { GET_FILMS } from '~/graphql/queries';
 
 export default function HomeDesign() {
   const { data, loading, error } = useQuery(GET_FILMS);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -76,7 +78,12 @@ export default function HomeDesign() {
         }}
       >
         {films.map((f: any) => (
-          <FilmCard key={f.id} film={f} />
+          <FilmCard
+            key={f.id}
+            film={f}
+            selected={selectedId === f.id}
+            onSelect={() => setSelectedId((s) => (s === f.id ? null : f.id))}
+          />
         ))}
       </Box>
     </Box>
