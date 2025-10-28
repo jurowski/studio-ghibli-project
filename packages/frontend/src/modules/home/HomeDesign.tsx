@@ -1,9 +1,10 @@
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { useQuery } from '@apollo/client';
 import FilmCard from './FilmCard';
+import bg from '~/assets/background.png';
 import { GET_FILMS } from '~/graphql/queries';
 
-const Home = () => {
+export default function HomeDesign() {
   const { data, loading, error } = useQuery(GET_FILMS);
 
   if (loading) {
@@ -12,7 +13,7 @@ const Home = () => {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="240px"
+        minHeight="320px"
       >
         <CircularProgress />
       </Box>
@@ -30,6 +31,7 @@ const Home = () => {
   }
 
   const films = data?.films ?? [];
+
   return (
     <Box
       sx={{
@@ -40,8 +42,7 @@ const Home = () => {
         px: { xs: 2, md: 6 },
         py: { xs: 6, md: 10 },
         boxSizing: 'border-box',
-        backgroundImage:
-          'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.85) 0 8%, transparent 20%), radial-gradient(circle at 80% 40%, rgba(255,255,255,0.7) 0 6%, transparent 18%), linear-gradient(180deg,#8ec5ff 0%,#bfe9ff 100%)',
+        backgroundImage: `url(${bg}), radial-gradient(circle at 20% 20%, rgba(255,255,255,0.85) 0 8%, transparent 20%), radial-gradient(circle at 80% 40%, rgba(255,255,255,0.7) 0 6%, transparent 18%), linear-gradient(180deg,#8ec5ff 0%,#bfe9ff 100%)`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
       }}
@@ -60,7 +61,6 @@ const Home = () => {
         Select a film & hover to learn more
       </Typography>
 
-      {/* Grid */}
       <Box
         sx={{
           display: 'grid',
@@ -75,28 +75,10 @@ const Home = () => {
           justifyItems: 'center',
         }}
       >
-        {(() => {
-          // Only show these four films (original requirement) in this order
-          const allowedTitles = [
-            'My Neighbor Totoro',
-            'Spirited Away',
-            'Princess Mononoke',
-            "Howl's Moving Castle",
-          ];
-
-          // Map allowed titles to available film objects; preserve order and filter missing
-          const selected = allowedTitles
-            .map((t) => films.find((f: any) => f.title === t))
-            .filter(Boolean) as any[];
-
-          // Fallback: if none of the allowed titles found, show first 4 from API
-          const toRender = selected.length > 0 ? selected : films.slice(0, 4);
-
-          return toRender.map((f: any) => <FilmCard key={f.id} film={f} />);
-        })()}
+        {films.map((f: any) => (
+          <FilmCard key={f.id} film={f} />
+        ))}
       </Box>
     </Box>
   );
-};
-
-export default Home;
+}

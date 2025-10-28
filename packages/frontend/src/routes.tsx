@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router-dom';
 import ErrorPage from '~/shared/components/ErrorPage';
-import Home from '~/modules/home/Home';
+import Home from '~/modules/home/HomeDesign';
 import NotFound from '~/shared/components/NotFound';
 import Layout from './shared/components/Layout';
 
